@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Kiara ❤️</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cute: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        gift: {
+                            bg: '#FFF5F7',
+                            primary: '#F43F5E',
+                            primaryLight: '#FDA4AF',
+                            text: '#3F3F46',
+                            card: '#FFFFFF',
+                            nightBg: '#1E1E2E',
+                            nightText: '#E2E8F0'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(244,63,94,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Framer Motion for smooth animations -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- html2pdf for PDF downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+        
+        /* Hide scrollbar but allow scrolling if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Floating particles animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        .particle {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Pixel art rendering for Minecraft stuff */
+        .pixelated {
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body class="bg-gift-bg text-gift-text font-sans antialiased overflow-hidden selection:bg-rose-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // ==========================================
+        // ⚙️ CONFIGURACIÓN DEL REGALO
+        // Puedes modificar estos valores fácilmente
+        // ==========================================
+        const CONFIG = {
+            receiverName: "Kiara",
+            nickname: "Kiar",
+            senderName: "Manuel",
+            // Pon aquí el nombre de tu archivo mp3 (ej. 'guitarra.mp3' o './assets/audio.mp3')
+            // Si el archivo no se encuentra, el reproductor simplemente no sonará, pero no romperá la página.
+            audioSrc: "guitarra.mp3", 
+            colors: {
+                primary: "rose-500",
+                light: "rose-100"
+            }
+        };
+
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // ==========================================
+        // 🎨 ASSETS Y SVGs (Para no depender de imágenes externas)
+        // ==========================================
+        
+        const CuteChick = ({ className, sleeping = false }) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Cuerpo */}
+                <circle cx="50" cy="55" r="35" fill="#FDE047" />
+                <circle cx="50" cy="45" r="25" fill="#FDE047" />
+                
+                {/* Mejillas */}
+                <circle cx="35" cy="48" r="4" fill="#FDA4AF" opacity="0.6" />
+                <circle cx="65" cy="48" r="4" fill="#FDA4AF" opacity="0.6" />
+                
+                {/* Ojos */}
+                {sleeping ? (
+                    <g stroke="#4B5563" strokeWidth="2" strokeLinecap="round" fill="none">
+                        <path d="M 32 42 Q 35 45 38 42" />
+                        <path d="M 62 42 Q 65 45 68 42" />
+                    </g>
+                ) : (
+                    <g fill="#4B5563">
+                        <circle cx="36" cy="42" r="3" />
+                        <circle cx="64" cy="42" r="3" />
+                        {/* Brillo */}
+                        <circle cx="37" cy="41" r="1" fill="white" />
+                        <circle cx="65" cy="41" r="1" fill="white" />
+                    </g>
+                )}
+                
+                {/* Pico */}
+                <path d="M 45 47 L 55 47 L 50 52 Z" fill="#F97316" />
+                
+                {/* Patitas */}
+                <path d="M 40 85 L 45 95 M 45 95 L 35 95 M 45 95 L 50 90" stroke="#F97316" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <path d="M 60 85 L 55 95 M 55 95 L 65 95 M 55 95 L 50 90" stroke="#F97316" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                
+                {/* Alitas */}
+                <path d="M 20 55 Q 10 65 25 70" fill="#FDE047" stroke="#EAB308" strokeWidth="1" />
+                <path d="M 80 55 Q 90 65 75 70" fill="#FDE047" stroke="#EAB308" strokeWidth="1" />
+            </svg>
+        );
+
+        const MinecraftChest = ({ isOpen }) => (
+            <svg viewBox="0 0 64 64" className="w-24 h-24 pixelated" xmlns="http://www.w3.org/2000/svg">
+                {/* Base del cofre */}
+                <rect x="8" y={isOpen ? 32 : 16} width="48" height="32" fill="#8B4513" stroke="#3E1F00" strokeWidth="2" />
+                {/* Detalles madera */}
+                <rect x="12" y={isOpen ? 36 : 20} width="40" height="4" fill="#A0522D" />
+                <rect x="12" y={isOpen ? 44 : 28} width="40" height="4" fill="#A0522D" />
+                <rect x="12" y={isOpen ? 52 : 36} width="40" height="4" fill="#A0522D" />
+                {/* Bordes metálicos */}
+                <rect x="8" y={isOpen ? 32 : 16} width="48" height="4" fill="#555" />
+                <rect x="8" y={isOpen ? 60 : 44} width="48" height="4" fill="#555" />
+                <rect x="8" y={isOpen ? 32 : 16} width="4" height="32" fill="#555" />
+                <rect x="52" y={isOpen ? 32 : 16} width="4" height="32" fill="#555" />
+                
+                {/* Tapa (si está abierto, la tapa se mueve hacia atrás, simplificado aquí levantándola) */}
+                {!isOpen && (
+                    <g>
+                        <rect x="8" y="16" width="48" height="12" fill="#8B4513" stroke="#3E1F00" strokeWidth="2" />
+                        <rect x="8" y="16" width="48" height="4" fill="#555" />
+                        <rect x="8" y="16" width="4" height="12" fill="#555" />
+                        <rect x="52" y="16" width="4" height="12" fill="#555" />
+                        {/* Candado */}
+                        <rect x="28" y="24" width="8" height="10" fill="#CCC" stroke="#555" strokeWidth="2" />
+                    </g>
+                )}
+                {isOpen && (
+                    <g transform="translate(0, -10)">
+                        <rect x="8" y="16" width="48" height="12" fill="#70360D" stroke="#3E1F00" strokeWidth="2" />
+                        <rect x="8" y="16" width="48" height="4" fill="#444" />
+                        <rect x="28" y="24" width="8" height="10" fill="#999" stroke="#444" strokeWidth="2" />
+                    </g>
+                )}
+            </svg>
+        );
+
+        const Diamond = () => (
+            <svg viewBox="0 0 64 64" className="w-16 h-16 pixelated drop-shadow-md" xmlns="http://www.w3.org/2000/svg">
+                <path d="M32 8 L48 24 L32 56 L16 24 Z" fill="#4ADE80" stroke="#166534" strokeWidth="2" />
+                <path d="M32 8 L48 24 L32 56" fill="none" stroke="#22C55E" strokeWidth="2" />
+                <path d="M32 8 L16 24 L32 56" fill="none" stroke="#14532D" strokeWidth="2" />
+                <path d="M16 24 L48 24" fill="none" stroke="#22C55E" strokeWidth="2" />
+                <circle cx="28" cy="20" r="2" fill="white" opacity="0.8" />
+            </svg>
+        );
+
+        const GuitarIcon = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-16 h-16 text-amber-700">
+                <path d="M9 18c-4.51 2-5-2-7-2l-2-2 11-11c2.5-2.5 5 1 5 1l2 2s-3.5 2.5-1 5c2 2 4.5 1 4.5 1l2 2-2 2s4-.5 2 5c0 0-4-.5-2 5l-2 2-11-11z"></path>
+                <circle cx="9" cy="15" r="2"></circle>
+                <path d="M10 14l3-3"></path>
+            </svg>
+        );
+
+        // ==========================================
+        // 🧩 COMPONENTES REUTILIZABLES
+        // ==========================================
+        
+        const Button = ({ children, onClick, variant = 'primary', className = '', ...props }) => {
+            const baseStyle = "relative overflow-hidden w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-2";
+            const variants = {
+                primary: "bg-rose-500 text-white hover:bg-rose-600 shadow-rose-200",
+                secondary: "bg-white text-rose-500 border-2 border-rose-100 hover:bg-rose-50",
+                ghost: "bg-transparent text-gray-500 hover:bg-gray-100 shadow-none",
+                minecraft: "bg-[#7AA641] text-white border-b-4 border-[#5A7C31] hover:bg-[#8BC34A] active:border-b-0 active:translate-y-1 rounded-none font-mono"
+            };
+
+            return (
+                <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onClick} 
+                    className={`${baseStyle} ${variants[variant]} ${className}`}
+                    {...props}
+                >
+                    {children}
+                </motion.button>
+            );
+        };
+
+        const Card = ({ children, className = '' }) => (
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className={`bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-soft w-full max-w-sm mx-auto text-center border border-white/50 ${className}`}
+            >
+                {children}
+            </motion.div>
+        );
+
+        // Componente para animar texto apareciendo
+        const FadeText = ({ texts, delay = 0.5 }) => {
+            return (
+                <div className="flex flex-col gap-4 my-6">
+                    {texts.map((text, i) => (
+                        <motion.p
+                            key={i}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: delay + (i * 1.5), duration: 0.8 }}
+                            className="text-gray-600 font-medium leading-relaxed"
+                        >
+                            {text}
+                        </motion.p>
+                    ))}
+                </div>
+            );
+        };
+
+        // Efecto de fondo
+        const BackgroundParticles = ({ isNight }) => {
+            return (
+                <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                    {[...Array(15)].map((_, i) => {
+                        const size = Math.random() * 10 + 5;
+                        return (
+                            <div
+                                key={i}
+                                className="particle absolute rounded-full"
+                                style={{
+                                    width: `${size}px`,
+                                    height: `${size}px`,
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                    backgroundColor: isNight ? '#FFF' : '#FDA4AF',
+                                    opacity: isNight ? (Math.random() * 0.5 + 0.1) : (Math.random() * 0.3 + 0.1),
+                                    animationDelay: `${Math.random() * 5}s`,
+                                    animationDuration: `${Math.random() * 4 + 4}s`
+                                }}
+                            />
+                        )
+                    })}
+                </div>
+            )
+        }
+
+        const AudioPlayer = ({ src }) => {
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [duration, setDuration] = useState(0);
+            const audioRef = useRef(null);
+
+            useEffect(() => {
+                const audio = audioRef.current;
+                if (!audio) return;
+
+                const updateProgress = () => setProgress((audio.currentTime / audio.duration) * 100);
+                const handleLoadedMetadata = () => setDuration(audio.duration);
+                const handleEnded = () => setIsPlaying(false);
+
+                audio.addEventListener('timeupdate', updateProgress);
+                audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.addEventListener('ended', handleEnded);
+
+                return () => {
+                    audio.removeEventListener('timeupdate', updateProgress);
+                    audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                    audio.removeEventListener('ended', handleEnded);
+                };
+            }, []);
+
+            const togglePlay = () => {
+                if (isPlaying) {
+                    audioRef.current.pause();
+                } else {
+                    // Manejo de error por si el archivo no existe
+                    audioRef.current.play().catch(e => console.log("Audio file not found or browser blocked autoplay", e));
+                }
+                setIsPlaying(!isPlaying);
+            };
+
+            const handleSeek = (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                audioRef.current.currentTime = pos * audioRef.current.duration;
+            };
+
+            const formatTime = (time) => {
+                if (isNaN(time)) return "0:00";
+                const mins = Math.floor(time / 60);
+                const secs = Math.floor(time % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            return (
+                <div className="bg-amber-50 rounded-2xl p-4 mt-4 border border-amber-100 shadow-inner">
+                    <audio ref={audioRef} src={src} preload="metadata" />
+                    
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={togglePlay}
+                            className="w-12 h-12 flex-shrink-0 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2"
+                        >
+                            {isPlaying ? (
+                                <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            ) : (
+                                <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            )}
+                        </button>
+                        
+                        <div className="flex-grow flex flex-col justify-center">
+                            <div className="flex justify-between text-xs text-amber-700 font-medium mb-1 px-1">
+                                <span>{formatTime(audioRef.current?.currentTime || 0)}</span>
+                                <span>{formatTime(duration)}</span>
+                            </div>
+                            <div 
+                                className="h-2 bg-amber-200 rounded-full cursor-pointer relative overflow-hidden"
+                                onClick={handleSeek}
+                            >
+                                <div 
+                                    className="absolute top-0 left-0 h-full bg-amber-500 rounded-full"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 📱 PANTALLAS DE LA EXPERIENCIA
+        // ==========================================
+
+        const ScreenInitial = ({ onNext }) => (
+            <Card>
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
+                    className="flex justify-center mb-6"
+                >
+                    <CuteChick className="w-32 h-32" />
+                </motion.div>
+                
+                <h1 className="text-2xl font-cute font-bold text-gray-800 mb-2">
+                    Para mi Kiarita ❤️
+                </h1>
+                
+                <p className="text-gray-600 mb-8 font-medium">
+                    Hoy no pude verte, pero quería hacerte llegar algo pequeñito.
+                </p>
+                
+                <div className="flex flex-col gap-3">
+                    <Button onClick={onNext}>
+                        <span>🐣</span> Ábreme
+                    </Button>
+                    <span className="text-xs text-gray-400 mt-1 italic">
+                        Prometo que no ocupa espacio en tu mochila
+                    </span>
+                </div>
+            </Card>
+        );
+
+        const ScreenHug = ({ onNext }) => {
+            const [showButton, setShowButton] = useState(false);
+
+            useEffect(() => {
+                const timer = setTimeout(() => setShowButton(true), 4000);
+                return () => clearTimeout(timer);
+            }, []);
+
+            return (
+                <Card>
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1.2, opacity: 1 }}
+                        transition={{ duration: 0.8, type: "spring" }}
+                        className="flex justify-center mb-4 relative"
+                    >
+                        <div className="absolute inset-0 bg-rose-200 blur-2xl opacity-50 rounded-full animate-pulse"></div>
+                        
+                        <img src="minecraft_hug.gif" alt="Abrazo Minecraft" className="w-48 h-48 object-cover rounded-2xl relative z-10 shadow-lg border-2 border-white/50" />
+                        
+                        <motion.div 
+                            initial={{ scale: 0, x: -20, y: -20 }}
+                            animate={{ scale: 1, x: 20, y: -10 }}
+                            transition={{ delay: 0.5, type: "spring" }}
+                            className="absolute top-0 right-10 text-4xl z-20"
+                        >
+                            ❤️
+                        </motion.div>
+                    </motion.div>
+
+                    <motion.h2 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        className="text-xl font-bold text-rose-500 mb-2"
+                    >
+                        🫂 Abrazo enviado
+                    </motion.h2>
+
+                    <FadeText 
+                        texts={[
+                            "Quería recordarte que te amo mucho y que aquí estoy para ti, siempre. ❤️"
+                        ]} 
+                        delay={1.5} 
+                    />
+
+                    <AnimatePresence>
+                        {showButton && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <Button onClick={onNext} className="mt-4">
+                                    ✨ Tengo otra cosita para ti
+                                </Button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </Card>
+            );
+        };
+
+        const ScreenCertificate = ({ onNext }) => {
+            const handleDownload = () => {
+                const element = document.getElementById('certificado-pdf');
+                const opt = {
+                    margin:       0.5,
+                    filename:     'Certificado_Abrazo_Kiara.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                window.html2pdf().set(opt).from(element).save();
+            };
+
+            return (
+                <Card className="border-4 border-double border-rose-200 bg-[#FFFAF0] p-0 overflow-hidden">
+                    <div id="certificado-pdf" className="p-8 bg-[#FFFAF0]">
+                        <div className="mb-4 text-4xl">📜</div>
+                        <h2 className="text-xl font-bold text-amber-800 mb-4 uppercase tracking-wider text-sm">
+                            Certificado Oficial de Abrazo 🫂
+                        </h2>
+                        
+                        <div className="text-left text-gray-700 text-sm space-y-2 bg-white/50 p-4 rounded-xl mb-6 border border-amber-100">
+                            <p className="font-semibold text-gray-800 border-b border-rose-100 pb-2 mb-2">
+                                Este abrazo es oficialmente válido para:
+                            </p>
+                            <ul className="space-y-2 pl-2">
+                                <li className="flex items-center gap-2"><span>🌸</span> días pesados</li>
+                                <li className="flex items-center gap-2"><span>🔋</span> momentos de cansancio</li>
+                                <li className="flex items-center gap-2"><span>🧠</span> cuando tengas demasiadas cosas en la cabeza</li>
+                                <li className="flex items-center gap-2"><span>🤍</span> cuando simplemente quieras uno</li>
+                                <li className="flex items-center gap-2 font-medium text-rose-600"><span>❤️</span> y, obviamente, cuando quieras uno mío</li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col items-center mb-6">
+                            <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">Usos disponibles</span>
+                            <div className="text-4xl text-rose-500 font-light">
+                                ∞
+                            </div>
+                            <span className="text-xs text-rose-400 font-medium">Ilimitados.</span>
+                        </div>
+                        
+                        <div className="mt-8 flex flex-col items-center border-t border-amber-200 pt-4">
+                            <img src="firma.png" alt="Firma Manuel" className="h-16 object-contain opacity-80" />
+                            <span className="text-xs text-amber-700/60 font-medium mt-1">Manuel</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3 p-8 pt-0">
+                        <Button onClick={handleDownload} variant="secondary" className="!py-3 text-sm">
+                            📄 Descargar en PDF
+                        </Button>
+                        <Button onClick={onNext}>
+                            Continuar ✨
+                        </Button>
+                    </div>
+                </Card>
+            );
+        };
+
+        const ScreenMinecraft = ({ onNext }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const [showButton, setShowButton] = useState(false);
+
+            const handleOpen = () => {
+                setIsOpen(true);
+                setTimeout(() => setShowButton(true), 1500);
+            };
+
+            return (
+                <Card className="bg-gray-100 border-gray-300">
+                    <h2 className="text-xl font-bold text-gray-800 mb-2 font-mono">
+                        🎮 Recompensa desbloqueada
+                    </h2>
+                    
+                    <div className="h-40 flex flex-col items-center justify-center my-6 relative">
+                        <MinecraftChest isOpen={isOpen} />
+                        
+                        <AnimatePresence>
+                            {isOpen && (
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0, scale: 0.5 }}
+                                    animate={{ y: -60, opacity: 1, scale: 1 }}
+                                    transition={{ type: "spring", bounce: 0.6 }}
+                                    className="absolute"
+                                >
+                                    <Diamond />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {!isOpen ? (
+                        <Button variant="minecraft" onClick={handleOpen}>
+                            ABRIR_COFRE
+                        </Button>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
+                            <h3 className="text-lg font-bold text-emerald-600 mb-1 flex items-center justify-center gap-2">
+                                💎 1 Abrazo Legendario
+                            </h3>
+                            <p className="text-xs text-gray-500 font-mono mb-6">
+                                Rareza: imposible de conseguir en Minecraft.
+                            </p>
+                            
+                            <AnimatePresence>
+                                {showButton && (
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                        <Button variant="primary" onClick={onNext}>
+                                            Guardar en inventario
+                                        </Button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </Card>
+            );
+        };
+
+        const ScreenGuitar = ({ onNext }) => (
+            <Card>
+                <div className="flex justify-center mb-4 text-amber-600">
+                    <GuitarIcon />
+                </div>
+                
+                <h2 className="text-xl font-bold text-gray-800 mb-4 font-cute">
+                    🎸 Una canción que me hizo pensar en ti
+                </h2>
+                
+                <p className="text-gray-600 text-sm mb-6">
+                    No hace falta que hoy toque una canción entera 😂<br/>
+                    Solo quería dejarte este pequeño recuerdo.
+                </p>
+
+                <div className="mb-8 text-left">
+                    <AudioPlayer src={CONFIG.audioSrc} />
+                    <p className="text-[10px] text-gray-400 text-center mt-2">
+                        (Puedes darle play si quieres escucharlo un ratito)
+                    </p>
+                </div>
+
+                <Button onClick={onNext} variant="secondary">
+                    Leer cartita 💌
+                </Button>
+            </Card>
+        );
+
+        const ScreenLetter = ({ onNext }) => {
+            const handleDownload = () => {
+                const element = document.getElementById('carta-pdf');
+                const opt = {
+                    margin:       0.5,
+                    filename:     'Un_Pedacito_De_Mi_Para_Kiara.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                window.html2pdf().set(opt).from(element).save();
+            };
+
+            return (
+                <Card className="text-left bg-[#FFFBFB] p-0 overflow-hidden">
+                    <div id="carta-pdf" className="p-8 bg-[#FFFBFB]">
+                        <h2 className="text-xl font-bold text-rose-500 mb-6 flex items-center gap-2 border-b border-rose-100 pb-4">
+                            💌 Un pedacito de mi
+                        </h2>
+                        
+                        <div className="space-y-4 text-gray-700 leading-relaxed font-medium text-[15px]">
+                            <p>
+                                No puedo hacer que todos los días sean perfectos, y a veces no puedo lograrlo todo.
+                            </p>
+                            <p>
+                                Pero sí puedo recordarte que, incluso desde lejos, hay alguien que piensa en ti, que te ama y que siempre va a querer verte sonreír.
+                            </p>
+                            <p>
+                                Hoy solo quería dejarte un pequeño pedacito de mi corazón, de mi.
+                            </p>
+                            <p className="font-semibold text-gray-800 mt-6 text-lg">
+                                Te amo mucho, kiarita ❤️
+                            </p>
+                        </div>
+
+                        <div className="mt-8 pt-4 border-t border-rose-50 flex flex-col items-end">
+                            <img src="firma.png" alt="Firma Manuel" className="h-16 object-contain opacity-80 mr-4" />
+                        </div>
+                    </div>
+
+                    <div className="p-8 pt-0 mt-2 flex flex-col gap-3">
+                        <Button onClick={handleDownload} variant="secondary" className="!py-3 text-sm">
+                            📄 Guardar carta en PDF
+                        </Button>
+                        <Button onClick={onNext}>
+                            Siguiente
+                        </Button>
+                    </div>
+                </Card>
+            );
+        };
+
+        const ScreenAnotherHug = ({ onNext }) => {
+            const [selected, setSelected] = useState(null);
+
+            const handleSelect = (option) => {
+                setSelected(option);
+                setTimeout(() => {
+                    onNext(option); // Pasamos la opción a la función principal para decidir el final
+                }, 2500);
+            };
+
+            if (selected === 'yes') {
+                return (
+                    <Card>
+                        <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: [0, 1.2, 1] }}
+                            transition={{ duration: 0.5 }}
+                            className="text-6xl mb-4"
+                        >
+                            🫂
+                        </motion.div>
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">Sabía que ibas a decir que sí 😂❤️</h2>
+                        <p className="text-rose-500 font-medium">Abrazo #2 enviado.</p>
+                    </Card>
+                )
+            }
+
+            if (selected === 'no') {
+                return (
+                    <Card>
+                        <motion.div 
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            className="text-5xl mb-4"
+                        >
+                            📦
+                        </motion.div>
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">Bueno...</h2>
+                        <p className="text-gray-600 font-medium">Lo guardaré en una cajita para después 😌❤️</p>
+                    </Card>
+                )
+            }
+
+            return (
+                <Card>
+                    <h2 className="text-2xl font-cute font-bold text-gray-800 mb-8">
+                        ¿Quieres otro abrazo?
+                    </h2>
+                    
+                    <div className="flex flex-col gap-4">
+                        <Button onClick={() => handleSelect('yes')}>
+                            🫂 Sí, por favor
+                        </Button>
+                        <Button variant="ghost" onClick={() => handleSelect('no')}>
+                            😌 Ya tengo uno
+                        </Button>
+                    </div>
+                </Card>
+            );
+        };
+
+        const ScreenFinal = () => (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 2 }}
+                className="text-center text-gift-nightText z-10 p-8"
+            >
+                <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 1, duration: 1 }}
+                    className="flex justify-center mb-8"
+                >
+                    <div className="bg-white/5 p-6 rounded-full backdrop-blur-sm border border-white/10">
+                        <CuteChick sleeping={true} className="w-24 h-24 opacity-80" />
+                    </div>
+                </motion.div>
+                
+                <motion.h1 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 2 }}
+                    className="text-3xl font-cute font-bold mb-4 text-white"
+                >
+                    🌙 Buenas noches, {CONFIG.nickname}
+                </motion.h1>
+                
+                <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 3.5 }}
+                    className="text-lg text-gray-300 mb-6"
+                >
+                    Gracias por existir en mi vida.
+                </motion.p>
+                
+                <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 5 }}
+                    className="text-xl font-medium text-rose-300 mb-12"
+                >
+                    Te amo. ❤️
+                </motion.p>
+                
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 6.5, duration: 1 }}
+                    className="text-right text-gray-400 italic font-medium pr-4"
+                >
+                    — {CONFIG.senderName}
+                </motion.div>
+            </motion.div>
+        );
+
+        // ==========================================
+        // 🚀 APLICACIÓN PRINCIPAL (Gestor de Estado)
+        // ==========================================
+        const App = () => {
+            const [step, setStep] = useState(0);
+            const isNight = step === 7; // El paso 7 es la pantalla final
+
+            const nextStep = () => {
+                setStep(prev => prev + 1);
+            };
+
+            // Mapeo de pantallas
+            const screens = [
+                <ScreenInitial key="0" onNext={nextStep} />,
+                <ScreenHug key="1" onNext={nextStep} />,
+                <ScreenCertificate key="2" onNext={nextStep} />,
+                <ScreenMinecraft key="3" onNext={nextStep} />,
+                <ScreenGuitar key="4" onNext={nextStep} />,
+                <ScreenLetter key="5" onNext={nextStep} />,
+                <ScreenAnotherHug key="6" onNext={nextStep} />,
+                <ScreenFinal key="7" />
+            ];
+
+            return (
+                <div className={`relative w-full h-screen flex items-center justify-center transition-colors duration-1000 p-4 ${isNight ? 'bg-gift-nightBg' : 'bg-gift-bg'}`}>
+                    <BackgroundParticles isNight={isNight} />
+                    
+                    <div className="w-full max-w-md z-10 relative">
+                        <AnimatePresence mode="wait">
+                            {screens[step]}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
