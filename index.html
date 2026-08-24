@@ -85,7 +85,7 @@
         }
     </style>
 </head>
-<body class="bg-gift-bg text-gift-text font-sans antialiased overflow-hidden selection:bg-rose-200">
+<body class="bg-gift-bg text-gift-text font-sans antialiased overflow-x-hidden selection:bg-rose-200">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -237,7 +237,7 @@
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className={`bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-soft w-full max-w-sm mx-auto text-center border border-white/50 ${className}`}
+                className={`bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-soft w-full max-w-sm mx-auto my-auto shrink-0 text-center border border-white/50 ${className}`}
             >
                 {children}
             </motion.div>
@@ -814,7 +814,7 @@
             ];
 
             return (
-                <div className={`relative w-full h-screen flex items-center justify-center transition-colors duration-1000 p-4 ${isNight ? 'bg-gift-nightBg' : 'bg-gift-bg'}`}>
+                <div className={`relative w-full min-h-screen flex flex-col items-center justify-center transition-colors duration-1000 py-12 px-4 ${isNight ? 'bg-gift-nightBg' : 'bg-gift-bg'}`}>
                     <BackgroundParticles isNight={isNight} />
                     
                     <div className="w-full max-w-md z-10 relative">
